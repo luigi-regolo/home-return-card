@@ -1,0 +1,13 @@
+{
+  "name": "home-return-card",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "check": "node --check src/home-return-card.js && node --check dist/home-return-card.js",
+    "test": "node --test tests/*.test.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
