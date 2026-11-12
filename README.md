@@ -1,6 +1,7 @@
 # Home Return Card
 
 [![HACS Repository](https://img.shields.io/badge/HACS-Repository-41BDF5?style=flat-square)](https://my.home-assistant.io/redirect/hacs_repository/?owner=luigi-regolo&repository=home-return-card&category=plugin)
+[![Release](https://img.shields.io/github/v/release/luigi-regolo/home-return-card?label=Release&style=flat-square)](https://github.com/luigi-regolo/home-return-card/releases/latest)
 [![License: GPL-3.0-only](https://img.shields.io/badge/license-GPL--3.0--only-blue?style=flat-square)](LICENSE)
 [![GitHub Stars](https://img.shields.io/github/stars/luigi-regolo/home-return-card?style=flat-square)](https://github.com/luigi-regolo/home-return-card/stargazers)
 
