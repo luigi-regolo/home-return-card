@@ -19,7 +19,8 @@ test('safe defaults: label and page title always on, card name off, no destinati
   assert.equal('show_label' in c, false);
   assert.equal('show_title' in c, false);
   assert.equal(c.show_name, false);
-  assert.equal(c.name, 'Home Return Card');
+  assert.equal(c.name, 'HOME RETURN CARD');
+  assert.equal(c.arrow, 'left');
   assert.equal(c.title, '');
   assert.equal(c.navigation_path, '');
   assert.equal(c.style, 'row');
@@ -86,3 +87,35 @@ test('dashboard config is requested once and failures are not retried in a loop'
 });
 
 test('escaping', () => assert.equal(m.hrEsc('<a href="x">\'&'), '&lt;a href=&quot;x&quot;&gt;&#39;&amp;'));
+
+test('arrow choice is limited to known presets', () => {
+  assert.deepEqual(Object.keys(m.HR_ARROWS), ['left', 'up', 'return', 'check', 'exit']);
+  assert.equal(m.hrConfig({ arrow: 'up' }).arrow, 'up');
+  assert.equal(m.hrConfig({ arrow: 'x"y' }).arrow, 'left');
+  assert.equal(m.hrConfig({ arrow: '__proto__' }).arrow, 'left');
+  for (const a of Object.values(m.HR_ARROWS)) assert.match(a.icon, /^mdi:[a-z-]+$/);
+});
+
+test('density is standard by default and limited to known values', () => {
+  assert.equal(m.hrConfig().density, 'standard');
+  assert.equal(m.hrConfig({ density: 'thin' }).density, 'thin');
+  assert.equal(m.hrConfig({ density: 'huge' }).density, 'standard');
+  assert.equal(m.hrConfig({ density: '__proto__' }).density, 'standard');
+  assert.deepEqual(Object.keys(m.HR_DENSITIES), ['standard', 'thin']);
+});
+
+test('dashboard icon comes from the sidebar panel and is validated', () => {
+  const hass = { panels: { 'dashboard-demo': { icon: 'mdi:home' }, bad: { icon: 'x"y' }, none: { icon: null } } };
+  assert.equal(m.hrDashIcon(hass, 'dashboard-demo'), 'mdi:home');
+  assert.equal(m.hrDashIcon(hass, 'bad'), '');
+  assert.equal(m.hrDashIcon(hass, 'none'), '');
+  assert.equal(m.hrDashIcon(hass, 'missing'), '');
+  assert.equal(m.hrDashIcon(null, 'dashboard-demo'), '');
+  assert.equal(m.hrDashIcon({}, 'dashboard-demo'), '');
+});
+
+test('sections view: full width, rows left undefined', () => {
+  const o = m.HomeReturnCard.prototype.getGridOptions.call({});
+  assert.deepEqual(o, { columns: 'full' });
+  assert.equal('rows' in o, false);
+});

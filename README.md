@@ -8,7 +8,7 @@
 
 **Home Return Card** is a navigation card for Home Assistant dashboards, designed with a minimalist interface inspired by the Edera Light and Dark visual styles.
 
-It does one thing: it takes you back to your main dashboard from any page. It reads the name of the page you are on, such as *Stanza demo uno* or *Stanza demo due*, and shows it with the label *Torna alla dashboard*, so the same card can be placed on every page.
+It does one thing: it takes you back to your main dashboard from any page. It reads the name of the page you are on, such as *Stanza demo uno* or *Stanza demo due*, and shows it with the label *Torna alla dashboard* and the icon of your dashboard, so the same card can be placed on every page.
 
 The card only changes page: it never sends commands to your devices. It does not require a dedicated account, external services or additional libraries.
 
@@ -22,10 +22,14 @@ The card only changes page: it never sends commands to your devices. It does not
 
 ## Features
 
-- **Current page name:** Reads the name and icon of the page you are on from the dashboard configuration. If the dashboard configuration cannot be read, the name is derived from the page address.
+- **Current page name:** Reads the name of the page you are on from the dashboard configuration. If the dashboard configuration cannot be read, the name is derived from the page address.
+- **Dashboard icon:** By default the card shows the icon of your dashboard, as set in the Home Assistant sidebar, and falls back to the icon of the page. You can choose another icon.
 - **Five styles:** Row with arrow, Centered, Solid emerald, Arrow panel and Slim path, selectable from the visual editor.
 - **Destination of your choice:** Pick the dashboard or view to return to with the Home Assistant navigation picker. Only internal Home Assistant paths are accepted.
-- **Customizable texts:** The label and the page title are always shown and can be changed. An optional card name can be turned on; it is off by default.
+- **Standard or slim height:** The default size is unchanged; a slimmer version of every style can be selected.
+- **Arrow of your choice:** Left arrow (default), up arrow, return, check mark or view change.
+- **Customizable texts:** The label and the page title are always shown and can be changed. An optional card name, written as the small uppercase header of the other Edera cards, can be turned on; it is off by default.
+- **Full width:** In the sections view the card takes the full width of the section.
 - **Stable layout:** The card is drawn from what is already known when it appears, so it does not change size when the page name is loaded.
 - **Visual configuration:** Configure the card through the Home Assistant dashboard editor, without writing YAML.
 - **Edera appearance:** Automatic, Light and Dark themes with Home Assistant Material Design Icons.
@@ -69,7 +73,7 @@ If the `www` directory was just created, Home Assistant may need to be restarted
 Open a dashboard in edit mode, add **Home Return Card** and configure it. The editor has three sections:
 
 - **Destinazione:** the dashboard or view the card returns to.
-- **Aspetto:** style, label, title, optional card name, icon and theme.
+- **Aspetto:** style, height, arrow, label, title, optional card name, icon and theme.
 - **Avanzate:** reading of the page name and icon, and a manual destination path.
 
 ### Example YAML configuration
@@ -88,11 +92,13 @@ navigation_path: /dashboard-demo
 |---|---|
 | `navigation_path` | Internal path the card returns to, for example `/dashboard-demo`. It must start with `/`. Without it, the card does nothing when tapped. |
 | `style` | `row`, `centered`, `solid`, `split` or `slim`. Default: `row`. |
+| `density` | `standard` or `thin` (slimmer card). Default: `standard`. |
+| `arrow` | `left`, `up`, `return`, `check` or `exit`. Default: `left`. |
 | `label` | Small uppercase text above the page name. Default: `Torna alla dashboard`. |
 | `title` | Custom title. Leave empty to show the name of the current page. |
-| `show_name` | Show the card name above the card. Default: `false`. |
-| `name` | Card name shown when `show_name` is enabled. Default: `Home Return Card`. |
-| `icon` | Custom icon, for example `mdi:door`. Leave empty to use the icon of the page. |
+| `show_name` | Show the card name as a small uppercase header above the card. Default: `false`. |
+| `name` | Card name shown when `show_name` is enabled. Default: `HOME RETURN CARD`. |
+| `icon` | Custom icon, for example `mdi:door`. Leave empty to use the icon of the dashboard. |
 | `auto_page` | Read the page name and icon from the dashboard configuration. Default: `true`. |
 | `theme_mode` | `auto`, `light` or `dark`. |
 

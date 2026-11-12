@@ -6,14 +6,23 @@
 const HR_TAG = 'home-return-card';
 const HR_EDITOR_TAG = 'home-return-card-editor';
 const HR_STYLES = Object.freeze(['row', 'centered', 'solid', 'split', 'slim']);
+const HR_DENSITIES = Object.freeze({ standard: 'Standard', thin: 'Sottile' });
 const HR_STYLE_LABEL = Object.freeze({
   row: 'Riga con freccia', centered: 'Centrata', solid: 'Smeraldo pieno', split: 'Pannello freccia', slim: 'Percorso sottile',
 });
 const HR_DEFAULTS = Object.freeze({
-  style: 'row', navigation_path: '', label: 'Torna alla dashboard', title: '',
-  show_name: false, name: 'Home Return Card', icon: '', auto_page: true, theme_mode: 'auto',
+  style: 'row', density: 'standard', navigation_path: '', label: 'Torna alla dashboard', title: '',
+  arrow: 'left', show_name: false, name: 'HOME RETURN CARD', icon: '', auto_page: true, theme_mode: 'auto',
 });
-const HR_FALLBACK_ICON = 'mdi:floor-plan';
+const HR_FALLBACK_ICON = 'mdi:view-dashboard';
+// Arrow shown on the button: the user chooses it in the editor. "left" is the default.
+const HR_ARROWS = Object.freeze({
+  left: { icon: 'mdi:arrow-left', label: 'Freccia a sinistra' },
+  up: { icon: 'mdi:arrow-up', label: 'Freccia in alto' },
+  return: { icon: 'mdi:keyboard-return', label: 'Ritorno' },
+  check: { icon: 'mdi:check', label: 'Spunta' },
+  exit: { icon: 'mdi:exit-to-app', label: 'Cambio vista' },
+});
 const HR_CACHE = new Map();
 
 function hrText(value, max = 100) { return String(value ?? '').trim().slice(0, max); }
@@ -31,12 +40,20 @@ function hrIconName(value) {
   const v = hrText(value, 80).toLowerCase();
   return /^[a-z0-9-]+:[a-z0-9-]+$/.test(v) ? v : '';
 }
+// Icon of a dashboard as registered in the sidebar (hass.panels[url_path].icon). Optional: returns '' when unavailable.
+function hrDashIcon(hass, dash) {
+  const panels = hass && typeof hass.panels === 'object' ? hass.panels : null;
+  const panel = panels && dash ? panels[dash] : null;
+  return panel && typeof panel === 'object' ? hrIconName(panel.icon) : '';
+}
 function hrConfig(raw = {}) {
   const r = raw && typeof raw === 'object' && !Array.isArray(raw) ? raw : {};
   return {
     type: 'custom:home-return-card',
     style: HR_STYLES.includes(r.style) ? r.style : HR_DEFAULTS.style,
+    density: Object.prototype.hasOwnProperty.call(HR_DENSITIES, r.density) ? r.density : HR_DEFAULTS.density,
     navigation_path: hrPath(r.navigation_path),
+    arrow: Object.prototype.hasOwnProperty.call(HR_ARROWS, r.arrow) ? r.arrow : HR_DEFAULTS.arrow,
     label: hrText(r.label ?? HR_DEFAULTS.label, 60),
     title: hrText(r.title, 60),
     show_name: r.show_name === true,
@@ -109,8 +126,7 @@ ha-icon{display:inline-flex;align-items:center;justify-content:center;flex-shrin
 .hr-go ha-icon{--mdc-icon-size:20px;width:20px;height:20px}
 .hr-text{flex:1;min-width:0;display:flex;flex-direction:column;gap:5px}
 .hr-eyebrow{display:block;font-size:10px;letter-spacing:1.7px;font-weight:750;color:var(--hr-muted);text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.hr-name{display:flex;min-width:0;height:24px;align-items:center;margin:0 4px 9px;font-size:16px;line-height:1.2;font-weight:780;letter-spacing:-.4px;color:var(--hr-fg)}
-.hr-name .hr-nt{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.hr-name b{flex:none;color:var(--hr-accent);font-weight:800}
+.hr-name{display:block;height:14px;margin:0 4px 10px;font-size:10px;line-height:14px;letter-spacing:1.7px;font-weight:750;color:var(--hr-muted);text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .hr-title{display:flex;min-width:0;font-size:22px;line-height:1.14;font-weight:780;letter-spacing:-.7px}
 .hr-title .hr-t{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .hr-title b{flex:none;color:var(--hr-accent);font-weight:800}
@@ -147,6 +163,20 @@ ha-icon{display:inline-flex;align-items:center;justify-content:center;flex-shrin
 .hr-slim .hr-eyebrow{flex:none;max-width:45%}
 .hr-sep{flex:none;color:var(--hr-muted);font-size:15px}
 .hr-slim .hr-title{flex:1;font-size:16px;letter-spacing:-.3px}
+/* Altezza sottile: stessi elementi, spazi e cerchi più piccoli (l'area di tocco resta di almeno 46 px) */
+.hr-thin.hr-row{padding:8px 14px;gap:12px;border-radius:22px;min-height:56px}
+.hr-thin.hr-row .hr-orb{width:38px;height:38px}.hr-thin.hr-row .hr-orb ha-icon{--mdc-icon-size:21px;width:21px;height:21px}
+.hr-thin .hr-text{gap:2px}.hr-thin.hr-row .hr-title{font-size:18px}.hr-thin.hr-row .hr-go{width:34px;height:34px}
+.hr-thin.hr-centered{padding:12px 14px;gap:6px;border-radius:22px;min-height:56px}
+.hr-thin.hr-centered .hr-orb{width:40px;height:40px}.hr-thin.hr-centered .hr-orb ha-icon{--mdc-icon-size:22px;width:22px;height:22px}
+.hr-thin.hr-centered .hr-title{font-size:20px}.hr-thin .hr-pill{min-height:30px;padding:5px 14px}
+.hr-thin.hr-solid{padding:9px 16px;gap:12px;border-radius:22px;min-height:56px}
+.hr-thin.hr-solid .hr-title{font-size:19px}.hr-thin.hr-solid .hr-go{width:38px;height:38px}
+.hr-thin .hr-mark{right:-10px;top:-8px}.hr-thin .hr-mark ha-icon{--mdc-icon-size:84px;width:84px;height:84px}
+.hr-thin.hr-split{min-height:56px;border-radius:20px}.hr-thin .hr-pan{width:52px}
+.hr-thin .hr-body{padding:8px 14px 8px 16px}.hr-thin.hr-split .hr-title{font-size:17px}
+.hr-thin.hr-split .hr-orb{width:34px;height:34px}.hr-thin.hr-split .hr-orb ha-icon{--mdc-icon-size:19px;width:19px;height:19px}
+.hr-thin.hr-slim{min-height:46px;padding:5px 16px 5px 6px}.hr-thin.hr-slim .hr-go{width:32px;height:32px}.hr-thin.hr-slim .hr-title{font-size:15px}
 @container hr-card (max-width:340px){
   .hr-row{padding:12px 13px;gap:11px;border-radius:23px}.hr-row .hr-orb{width:42px;height:42px}.hr-row .hr-orb ha-icon{--mdc-icon-size:23px;width:23px;height:23px}
   .hr-row .hr-title{font-size:20px}.hr-go{width:36px;height:36px}
@@ -186,6 +216,8 @@ class HomeReturnCard extends HTMLElement {
   setConfig(raw) { this._config = hrConfig(raw); this._asked = ''; this._last = ''; this._paint(); this._ensurePage(); }
   set hass(hass) { this._hass = hass; this._paint(); this._ensurePage(); }
   getCardSize() { return 2; }
+  // Sections view: full width (also in wide sections). Rows are left undefined so the card keeps its own height.
+  getGridOptions() { return { columns: 'full' }; }
   _isDark() {
     const mode = this._config.theme_mode;
     return mode === 'dark' || (mode === 'auto' && (this._hass?.themes?.darkMode === true || (!this._hass?.themes && this._media?.matches === true)));
@@ -197,7 +229,9 @@ class HomeReturnCard extends HTMLElement {
     const loc = this._loc();
     const cached = HR_CACHE.get(loc.dash)?.config;
     const info = cached ? hrPageInfo(cached, loc) : { title: hrHumanize(loc.view) || hrHumanize(loc.dash), icon: '' };
-    return { title: this._config.title || info.title, icon: this._config.icon || info.icon || HR_FALLBACK_ICON };
+    const dash = this._config.navigation_path ? hrSplitLocation(this._config.navigation_path).dash : loc.dash;
+    const icon = this._config.icon || hrDashIcon(this._hass, dash) || info.icon || HR_FALLBACK_ICON;
+    return { title: this._config.title || info.title, icon };
   }
   _ensurePage() {
     const c = this._config, hass = this._hass;
@@ -214,10 +248,10 @@ class HomeReturnCard extends HTMLElement {
     const sig = JSON.stringify([c, dark, page]);
     if (sig === this._last) return;
     this._last = sig;
-    this.shadowRoot.innerHTML = `<style>${HR_STYLE}</style><div class="hr-theme ${dark ? 'hr-dark' : 'hr-light'}"><div class="hr-host">${c.show_name ? `<div class="hr-name"><span class="hr-nt">${hrEsc(c.name)}</span><b>.</b></div>` : ''}${this._button(c, page)}</div></div>`;
+    this.shadowRoot.innerHTML = `<style>${HR_STYLE}</style><div class="hr-theme ${dark ? 'hr-dark' : 'hr-light'}"><div class="hr-host">${c.show_name ? `<div class="hr-name">${hrEsc(c.name)}</div>` : ''}${this._button(c, page)}</div></div>`;
   }
   _button(c, page) {
-    const arrow = '<ha-icon icon="mdi:arrow-left"></ha-icon>';
+    const arrow = `<ha-icon icon="${HR_ARROWS[c.arrow].icon}"></ha-icon>`;
     const room = `<ha-icon icon="${hrEsc(page.icon)}"></ha-icon>`;
     const label = c.label ? `<span class="hr-eyebrow">${hrEsc(c.label)}</span>` : '';
     const title = page.title ? `<span class="hr-title"><span class="hr-t">${hrEsc(page.title)}</span><b>.</b></span>` : '';
@@ -225,7 +259,7 @@ class HomeReturnCard extends HTMLElement {
     const notext = text ? '' : ' hr-notext';
     const off = c.navigation_path ? '' : ' hr-off';
     const name = `${c.label || HR_DEFAULTS.label}${page.title ? `, da ${page.title}` : ''}`;
-    const open = `<button type="button" class="hr-btn hr-${c.style}${notext}${off}" aria-label="${hrEsc(name)}"${c.navigation_path ? '' : ' aria-disabled="true" title="Scegli la destinazione nell’editor"'}>`;
+    const open = `<button type="button" class="hr-btn hr-${c.style}${c.density === 'thin' ? ' hr-thin' : ''}${notext}${off}" aria-label="${hrEsc(name)}"${c.navigation_path ? '' : ' aria-disabled="true" title="Scegli la destinazione nell’editor"'}>`;
     const block = text ? `<span class="hr-text">${text}</span>` : '';
     switch (c.style) {
       case 'centered':
@@ -309,11 +343,13 @@ class HomeReturnCardEditor extends HTMLElement {
     if (this._tab === 'aspetto') {
       body = '<div class="hr-heading">Aspetto Edera</div><div class="hr-desc">Stile, testi e tema della card. Etichetta e nome della pagina sono sempre visibili; il nome della card è facoltativo.</div>' +
         this._select('style', 'Stile', HR_STYLES.map(s => [s, HR_STYLE_LABEL[s]]), c.style) +
+        this._select('density', 'Altezza', Object.entries(HR_DENSITIES), c.density) +
+        this._select('arrow', 'Freccia', Object.entries(HR_ARROWS).map(([k, v]) => [k, v.label]), c.arrow) +
         this._input('label', 'Etichetta', c.label, 'Il testo piccolo in maiuscolo sopra il nome della pagina.') +
         this._input('title', 'Titolo personalizzato', c.title, 'Lascia vuoto per usare il nome della pagina corrente, con il punto verde finale.') +
-        this._check('show_name', 'name', 'Mostra nome della card', c.show_name, 'Intestazione facoltativa sopra la card, con il punto verde finale. Disattivata di default.') +
+        this._check('show_name', 'name', 'Mostra nome della card', c.show_name, 'Piccola intestazione in maiuscolo sopra la card, come nelle altre card. Disattivata di default.') +
         (c.show_name ? this._input('name', 'Nome della card', c.name) : '') +
-        this._field('Icona', `<div data-host="icon"></div><div class="hr-fallback"><input class="hr-input" type="text" maxlength="80" placeholder="mdi:floor-plan" data-key="icon" value="${hrEsc(c.icon)}"/></div>`, 'Lascia vuoto per usare l’icona della pagina.') +
+        this._field('Icona', `<div data-host="icon"></div><div class="hr-fallback"><input class="hr-input" type="text" maxlength="80" placeholder="mdi:floor-plan" data-key="icon" value="${hrEsc(c.icon)}"/></div>`, 'Lascia vuoto per usare l’icona della dashboard.') +
         this._select('theme_mode', 'Tema', [['auto', 'Auto (Home Assistant)'], ['light', 'Light Edera'], ['dark', 'Dark Edera']], c.theme_mode);
     }
     if (this._tab === 'avanzate') {
@@ -360,4 +396,4 @@ if (typeof window !== 'undefined') {
   window.customCards = window.customCards || [];
   if (!window.customCards.some(c => c.type === HR_TAG)) window.customCards.push({ type: HR_TAG, name: 'Home Return Card', description: 'Riporta alla dashboard principale da ogni pagina, in stile Edera.', preview: true });
 }
-export { hrConfig, hrPath, hrIconName, hrSplitLocation, hrHumanize, hrFindView, hrPageInfo, hrLoadDashboard, hrEsc, HR_CACHE, HR_STYLES };
+export { HomeReturnCard, HR_DENSITIES, HR_ARROWS, hrDashIcon, hrConfig, hrPath, hrIconName, hrSplitLocation, hrHumanize, hrFindView, hrPageInfo, hrLoadDashboard, hrEsc, HR_CACHE, HR_STYLES };
