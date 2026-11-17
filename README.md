@@ -1,6 +1,6 @@
 # Home Return Card
 
-[![HACS Repository](https://img.shields.io/badge/HACS-Repository-41BDF5?style=flat-square)](https://my.home-assistant.io/redirect/hacs_repository/?owner=luigi-regolo&repository=home-return-card&category=plugin)
+[![Marketplace](https://img.shields.io/badge/Marketplace-41BDF5?style=flat-square)](https://my.home-assistant.io/redirect/marketplace_repository/?owner=luigi-regolo&repository=home-return-card&category=plugin)
 [![Release](https://img.shields.io/github/v/release/luigi-regolo/home-return-card?label=Release&style=flat-square)](https://github.com/luigi-regolo/home-return-card/releases/latest)
 [![License: GPL-3.0-only](https://img.shields.io/badge/license-GPL--3.0--only-blue?style=flat-square)](LICENSE)
 [![GitHub Stars](https://img.shields.io/github/stars/luigi-regolo/home-return-card?style=flat-square)](https://github.com/luigi-regolo/home-return-card/stargazers)
@@ -38,20 +38,31 @@ The card only changes page: it never sends commands to your devices. It does not
 
 ## Installation
 
-### HACS — Custom repository
+### Marketplace (Recommended)
 
-1. Open **HACS** in Home Assistant.
-2. Open the menu and select **Custom repositories**.
-3. Enter the repository URL:
+Install Home Return Card directly from the default Marketplace catalog in Home Assistant 2026.11 or newer.
 
-   `https://github.com/luigi-regolo/home-return-card`
+[![Open Home Return Card in the Marketplace](https://my.home-assistant.io/badges/marketplace_repository.svg)](https://my.home-assistant.io/redirect/marketplace_repository/?owner=luigi-regolo&repository=home-return-card&category=plugin)
 
-4. Select **Dashboard** as the repository type and add it.
-5. Find **Home Return Card** in HACS and download it.
-6. Reload the Home Assistant dashboard if necessary.
+1. Go to **Settings** > **Marketplace**.
+2. The first time, accept the notice about community content.
+3. Use **Search** to find **Home Return Card**.
+4. Open the repository page and select **Install**.
+5. Check the version in the dialog and select **Install** again to confirm.
+6. Reload your browser to load the new resource.
 7. Add **Home Return Card** to your dashboard and configure it using the visual editor.
 
-The repository contains `hacs.json` and the distributable JavaScript module `dist/home-return-card.js`.
+### Alternative: Custom repository
+
+If you prefer to add the repository manually:
+
+1. Go to **Settings** > **Marketplace**.
+2. In the upper-right corner, select **Add from link**.
+3. Under **GitHub link**, enter `https://github.com/luigi-regolo/home-return-card`.
+4. Select **Add**. If the type is not detected, select **Dashboard** under **Type** and select **Add** again.
+5. Open **Home Return Card** and select **Install**.
+
+Adding a repository from a link requires a connected GitHub account. The Marketplace guides you through the connection when needed.
 
 ### Manual installation
 
